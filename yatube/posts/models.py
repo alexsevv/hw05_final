@@ -46,14 +46,11 @@ class Post(models.Model):
         null=True
     )
 
-    # Поле для картинки (необязательное)
     image = models.ImageField(
         'Картинка',
         upload_to='posts/',
         blank=True
     )
-    # Аргумент upload_to указывает директорию,
-    # в которую будут загружаться пользовательские файлы.
 
     class Meta:
         ordering = ['-pub_date']
@@ -107,3 +104,5 @@ class Follow(models.Model):
     class Meta:
         verbose_name = 'Лента автора'
         verbose_name_plural = 'Лента авторов'
+        constraints = [models.UniqueConstraint(
+            fields=['user', 'author'], name='unique_visitors')]

@@ -253,10 +253,10 @@ class FollowViewsTest(TestCase):
         self.authorized_client2 = Client()
         self.authorized_client2.force_login(self.user2)
 
-    def test_follow_unfollow(self):
+    def test_follow(self):
         """
         Авторизованный пользователь может подписываться
-        на других пользователей и удалять их из подписок.
+        на других пользователей.
         """
         count_follow = Follow.objects.count()
         self.authorized_client.get(reverse('posts:profile_follow',
@@ -265,13 +265,22 @@ class FollowViewsTest(TestCase):
         self.assertEqual(Follow.objects.count(), count_follow + 1)
         self.assertEqual(follow.author, self.user2)
         self.assertEqual(follow.user, self.user)
+
+    def test_unfollow(self):
+        """
+        Авторизованный пользователь может удалять их из подписок.
+        """
+        count_follow = Follow.objects.count()
+        self.authorized_client.get(reverse('posts:profile_follow',
+                                   kwargs={'username': self.user2.username}))
+        self.assertEqual(Follow.objects.count(), count_follow + 1)
         self.authorized_client.get(reverse('posts:profile_unfollow',
                                    kwargs={'username': self.user2.username}))
         self.assertEqual(Follow.objects.count(), count_follow)
 
-    def test_follower_see_new_post_and_unfollower_no_see_new_post(self):
+    def test_follower_see_new_post(self):
         '''Новая запись пользователя появляется в ленте тех,
-         кто на него подписан и не появляется в ленте тех, кто не подписан.'''
+         кто на него подписан'''
         new_post = Post.objects.create(
             author=FollowViewsTest.user2,
             text='Текстовый текст')
@@ -281,7 +290,16 @@ class FollowViewsTest(TestCase):
             reverse('posts:follow_index'))
         new_posts = response_follower.context['page_obj']
         self.assertIn(new_post, new_posts)
+
+    def test_unfollower_no_see_new_post(self):
+        '''Новая запись не появляется в ленте тех, кто не подписан.'''
+        new_post = Post.objects.create(
+            author=FollowViewsTest.user2,
+            text='Текстовый текст')
+        Follow.objects.create(user=FollowViewsTest.user,
+                              author=FollowViewsTest.user2)
         response_unfollower = self.authorized_client2.get(
             reverse('posts:follow_index'))
-        new_posts1 = response_unfollower.context['page_obj']
-        self.assertNotIn(new_post, new_posts1)
+        new_posts = response_unfollower.context['page_obj']
+        self.assertNotIn(new_post, new_posts)
+        self.assertEqual(len(new_posts), 0)

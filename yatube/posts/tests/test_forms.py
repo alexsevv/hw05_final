@@ -143,18 +143,15 @@ class CommentFormTest(TestCase):
     def test_create_comment(self):
         '''после успешной отправки комментарий появляется на странице поста.'''
         comment_count = Comment.objects.count()
-        form_data = {'post_id': self.post.pk,
-                     'text': 'второй тестовый коммент'}
+        form_data = {'text': 'второй тестовый коммент'}
         response = self.authorized_client.post(reverse(
             'posts:add_comment',
             kwargs={'post_id': self.post.pk}),
             data=form_data,
             follow=True)
+        new_comment = Comment.objects.last()
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertTrue(Comment.objects.filter(
-                        text='второй тестовый коммент',
-                        post=self.post.pk,
-                        author=self.user
-                        ).exists())
-        self.assertEqual(Comment.objects.count(),
-                         comment_count + 1)
+        self.assertEqual(Comment.objects.count(), comment_count + 1)
+        self.assertEqual(new_comment.text, form_data['text'])
+        self.assertEqual(new_comment.post, CommentFormTest.post)
+        self.assertEqual(new_comment.author, CommentFormTest.user)
