@@ -12,14 +12,12 @@ urlpatterns = [
     path('', include('posts.urls', namespace='posts')),
 ]
 
-# для своего отображения 404 ошибки
+handler403 = 'core.views.forbidden'
 handler404 = 'core.views.page_not_found'
-
-# для своего отображения 403 ошибки
+handler500 = 'core.views.server_error'
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 
-# Эти строки — в самый конец файла:
 if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
