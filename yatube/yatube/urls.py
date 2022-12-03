@@ -17,6 +17,10 @@ handler404 = 'core.views.page_not_found'
 handler500 = 'core.views.server_error'
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns += (path('__debug__/', include(debug_toolbar.urls)),)
 
 if settings.DEBUG:
     urlpatterns += static(

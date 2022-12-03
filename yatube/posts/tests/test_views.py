@@ -273,7 +273,7 @@ class FollowViewsTest(TestCase):
         count_follow = Follow.objects.count()
         self.authorized_client.get(reverse('posts:profile_follow',
                                    kwargs={'username': self.user2.username}))
-        self.assertEqual(Follow.objects.count(), count_follow + 1)
+        Follow.objects.create(user=self.user, author=self.user2)
         self.authorized_client.get(reverse('posts:profile_unfollow',
                                    kwargs={'username': self.user2.username}))
         self.assertEqual(Follow.objects.count(), count_follow)
@@ -284,8 +284,8 @@ class FollowViewsTest(TestCase):
         new_post = Post.objects.create(
             author=FollowViewsTest.user2,
             text='Текстовый текст')
-        Follow.objects.create(user=FollowViewsTest.user,
-                              author=FollowViewsTest.user2)
+        Follow.objects.get_or_create(user=FollowViewsTest.user,
+                                     author=FollowViewsTest.user2)
         response_follower = self.authorized_client.get(
             reverse('posts:follow_index'))
         new_posts = response_follower.context['page_obj']
@@ -296,8 +296,8 @@ class FollowViewsTest(TestCase):
         new_post = Post.objects.create(
             author=FollowViewsTest.user2,
             text='Текстовый текст')
-        Follow.objects.create(user=FollowViewsTest.user,
-                              author=FollowViewsTest.user2)
+        Follow.objects.get_or_create(user=FollowViewsTest.user,
+                                     author=FollowViewsTest.user2)
         response_unfollower = self.authorized_client2.get(
             reverse('posts:follow_index'))
         new_posts = response_unfollower.context['page_obj']
