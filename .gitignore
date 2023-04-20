@@ -146,8 +146,7 @@ dmypy.json
 .mypy_cache
 
 # папки со статикой и медиа
-# временно разрешаю скинуть статические файлы на гитхаб
-# static/
-# yatube/posts/static/
-# yatube/media/
+static/
+yatube/posts/static/
+yatube/media/
 
